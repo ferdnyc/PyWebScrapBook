@@ -5790,6 +5790,122 @@ class TestCheck(TestActions):
             mock_abort.assert_called_once_with(500, 'An unexpected error happened.')
 
 
+class TestSearch(TestActions):
+    @mock.patch('webscrapbook.app.abort', wraps=wsb_app.abort)
+    def test_format_check(self, mock_abort):
+        """Require format=json."""
+        with self.app.test_client() as c:
+            c.post('/', data={'a': 'search'})
+            mock_abort.assert_called_once_with(400, 'Action not supported.')
+
+    @mock.patch('webscrapbook.app.wsb_search.search', autospec=True,
+                return_value=iter(()))
+    def test_basic(self, mock_func):
+        """Check if params are passed correctly."""
+        with self.app.app_context(), self.app.test_client() as c:
+            r = c.post('/', data={
+                'a': 'search', 'f': 'json',
+                'q': 'book: book:b1, book:b2 foo bar',
+                'no_lock': 1,
+                'fulltext': 300,
+                'comment': 200,
+                'source': 100,
+            })
+
+            mock_func.assert_called_once_with(
+                (wsb_app.host.root, wsb_app.host.config),
+                query='book: book:b1, book:b2 foo bar',
+                lock=False,
+                context={
+                    'title': -1,
+                    'file': -1,
+                    'fulltext': 300,
+                    'comment': 200,
+                    'source': 100,
+                },
+            )
+            self.assertEqual(r.status_code, 200)
+            self.assertEqual(r.headers['Content-Type'], 'application/json')
+            self.assertEqual(r.headers['Cache-Control'], 'no-store')
+            self.assertEqual(r.json, {'data': {}})
+
+    def test_response(self):
+        """Check if search results are formatted correctly in the response."""
+        def gen(*args, **kwargs):
+            search = wsb_app.wsb_search
+            yield search.Item(book_id='', id='20200101000000000', file='index.html', meta={}, fulltext={}, context={
+                'title': 'mytitle',
+                'file': 'index.html',
+                'comment': 'mycomment',
+                'source': 'https://example.com/',
+                'fulltext': '湴一柺掎渶搋丌僪凞夃，<mark>桽亍</mark>陔帾棶蒎屮慪殳卌。',
+            })
+            yield search.Item(book_id='', id='20200102000000000', file='', meta={}, fulltext={}, context={})
+            yield search.Item(book_id='bk2', id='20210101000000000', file='index.html', meta={}, fulltext={}, context={
+                'title': 'mytitle',
+                'file': 'index.html',
+                'comment': 'mycomment',
+            })
+            yield search.Item(book_id='bk2', id='20210101000000000', file='frame.html', meta={}, fulltext={}, context={
+                'title': 'mytitle',
+                'file': 'frame.html',
+            })
+
+        with mock.patch('webscrapbook.app.wsb_search.search', gen),\
+             self.app.test_client() as c:
+            r = c.post('/', data={'a': 'search', 'f': 'json'})
+            self.assertEqual(r.status_code, 200)
+            self.assertEqual(r.headers['Content-Type'], 'application/json')
+            self.assertEqual(r.headers['Cache-Control'], 'no-store')
+            self.assertEqual(r.json, {
+                'data': {
+                    '': [
+                        {
+                            'id': '20200101000000000',
+                            'file': 'index.html',
+                            'context': {
+                                'title': 'mytitle',
+                                'file': 'index.html',
+                                'comment': 'mycomment',
+                                'source': 'https://example.com/',
+                                'fulltext': '湴一柺掎渶搋丌僪凞夃，<mark>桽亍</mark>陔帾棶蒎屮慪殳卌。',
+                            },
+                        },
+                        {
+                            'id': '20200102000000000',
+                            'file': '',
+                            'context': {},
+                        },
+                    ],
+                    'bk2': [
+                        {
+                            'id': '20210101000000000',
+                            'file': 'index.html',
+                            'context': {
+                                'title': 'mytitle',
+                                'file': 'index.html',
+                                'comment': 'mycomment',
+                            },
+                        },
+                        {
+                            'id': '20210101000000000',
+                            'file': 'frame.html',
+                            'context': {
+                                'title': 'mytitle',
+                                'file': 'frame.html',
+                            },
+                        },
+                    ],
+                },
+            })
+
+    @mock.patch('webscrapbook.app.abort', wraps=wsb_app.abort)
+    def test_bad_query(self, mock_abort):
+        with self.app.test_client() as c:
+            c.post('/', data={'a': 'search', 'f': 'json', 'q': 'sort:unknown'})
+            mock_abort.assert_called_once_with(400, 'Invalid sort: unknown')
+
+
 class TestUnknown(TestActions):
     @mock.patch('webscrapbook.app.abort', wraps=wsb_app.abort)
     def test_unknown(self, mock_abort):

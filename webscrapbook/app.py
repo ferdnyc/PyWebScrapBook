@@ -40,6 +40,7 @@ from ._polyfill import mimetypes, zipfile
 from .scrapbook import cache as wsb_cache
 from .scrapbook import check as wsb_check
 from .scrapbook import host as wsb_host
+from .scrapbook import search as wsb_search
 from .util.fs import (
     ZIP_SUBPATH_DIR,
     ZIP_SUBPATH_DIR_IMPLICIT,
@@ -1315,6 +1316,41 @@ def action_check():
                              )
 
     return Response(stream)
+
+
+@handle_action_advanced
+def action_search():
+    """Search in scrapbooks."""
+    format = request.format
+
+    if format != 'json':
+        abort(400, 'Action not supported.')
+
+    gen = wsb_search.search(
+        (host.root, host.config),
+        query=request.values.get('q', default=''),
+        context={
+            'title': -1,
+            'file': -1,
+            'comment': request.values.get('comment', default=None, type=int),
+            'source': request.values.get('source', default=None, type=int),
+            'fulltext': request.values.get('fulltext', default=None, type=int),
+        },
+        lock=not request.values.get('no_lock', default=False, type=bool),
+    )
+
+    data = {}
+    try:
+        for item in gen:
+            data.setdefault(item.book_id, []).append({
+                'id': item.id,
+                'file': item.file,
+                'context': item.context,
+            })
+    except wsb_search.QueryError as exc:
+        abort(400, str(exc))
+
+    return http_response(data, format=format)
 
 
 @bp.before_request
