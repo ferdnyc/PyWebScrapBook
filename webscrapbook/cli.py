@@ -157,10 +157,11 @@ def cmd_encrypt(args):
 def cmd_cache(args):
     """Generate (or update) fulltext cache and/or static site pages."""
     kwargs = args.copy()
+    root = kwargs.pop('root')
     debug = kwargs.pop('debug')
 
     from .scrapbook import cache
-    for info in cache.generate(**kwargs):
+    for info in cache.generate(root, **kwargs):
         if info.type != 'debug' or debug:
             log(f'{info.type.upper()}: {info.msg}')
 
@@ -180,10 +181,11 @@ def cmd_export(args):
     items between them.
     """
     kwargs = args.copy()
+    root = kwargs.pop('root')
     debug = kwargs.pop('debug')
 
     from .scrapbook import exporter
-    for info in exporter.run(**kwargs):
+    for info in exporter.run(root, **kwargs):
         if info.type != 'debug' or debug:
             log(f'{info.type.upper()}: {info.msg}')
 
@@ -196,10 +198,11 @@ def cmd_import(args):
     they have been exported.
     """
     kwargs = args.copy()
+    root = kwargs.pop('root')
     debug = kwargs.pop('debug')
 
     from .scrapbook import importer
-    for info in importer.run(**kwargs):
+    for info in importer.run(root, **kwargs):
         if info.type != 'debug' or debug:
             log(f'{info.type.upper()}: {info.msg}')
 
@@ -210,10 +213,11 @@ def cmd_check(args):
     (TOC = table of contents)
     """
     kwargs = args.copy()
+    root = kwargs.pop('root')
     debug = kwargs.pop('debug')
 
     from .scrapbook import check
-    for info in check.run(**kwargs):
+    for info in check.run(root, **kwargs):
         if info.type != 'debug' or debug:
             log(f'{info.type.upper()}: {info.msg}')
 
