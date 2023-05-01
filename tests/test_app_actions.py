@@ -78,6 +78,8 @@ def token(c):
 class TestActions(TestFileMixin, unittest.TestCase):
     @classmethod
     def setUpClass(cls):
+        cls.maxDiff = 8192
+
         # init an app for the class
         cls.root = tempfile.mkdtemp(dir=tmpdir)
         os.rmdir(cls.root)
@@ -1830,6 +1832,10 @@ class TestConfig(TestActions):
                             'tree_dir': WSB_DIR + '/tree',
                             'index': WSB_DIR + '/tree/map.html',
                             'no_tree': False,
+                            'inclusive_frames': True,
+                            'static_index': False,
+                            'rss_root': '',
+                            'rss_item_count': 50,
                         }
                     },
                     'VERSION': webscrapbook.__version__,
@@ -5487,13 +5493,9 @@ class TestCache(TestActions):
                 'no_lock': 1,
                 'no_backup': 1,
                 'fulltext': 1,
-                'inclusive_frames': 1,
                 'recreate': 1,
                 'static_site': 1,
                 'static_index': 1,
-                'rss_root': 'http://example.com',
-                'rss_item_count': 25,
-                'locale': 'zh',
             })
 
             mock_func.assert_called_once_with(
@@ -5505,13 +5507,10 @@ class TestCache(TestActions):
                 lock=False,
                 backup=False,
                 fulltext=True,
-                inclusive_frames=True,
                 recreate=True,
                 static_site=True,
                 static_index=True,
-                rss_root='http://example.com',
-                rss_item_count=25,
-                locale='zh',
+                rss=None,
             )
             self.assertEqual(r.status_code, 200)
             self.assertEqual(r.headers['Content-Type'], 'text/event-stream; charset=utf-8')
@@ -5532,13 +5531,9 @@ class TestCache(TestActions):
                 'no_lock': 1,
                 'no_backup': 1,
                 'fulltext': 1,
-                'inclusive_frames': 1,
                 'recreate': 1,
                 'static_site': 1,
                 'static_index': 1,
-                'rss_root': 'http://example.com',
-                'rss_item_count': 25,
-                'locale': 'zh',
             })
 
             mock_func.assert_called_once_with(
@@ -5550,13 +5545,10 @@ class TestCache(TestActions):
                 lock=False,
                 backup=False,
                 fulltext=True,
-                inclusive_frames=True,
                 recreate=True,
                 static_site=True,
                 static_index=True,
-                rss_root='http://example.com',
-                rss_item_count=25,
-                locale='zh',
+                rss=None,
             )
             self.assertEqual(r.status_code, 200)
             self.assertEqual(r.headers['Content-Type'], 'application/json')
@@ -5576,13 +5568,9 @@ class TestCache(TestActions):
                 'no_lock': 1,
                 'no_backup': 1,
                 'fulltext': 1,
-                'inclusive_frames': 1,
                 'recreate': 1,
                 'static_site': 1,
                 'static_index': 1,
-                'rss_root': 'http://example.com',
-                'rss_item_count': 25,
-                'locale': 'zh',
             }, buffered=True)
 
             mock_func.assert_called_once_with(
@@ -5594,13 +5582,10 @@ class TestCache(TestActions):
                 lock=False,
                 backup=False,
                 fulltext=True,
-                inclusive_frames=True,
                 recreate=True,
                 static_site=True,
                 static_index=True,
-                rss_root='http://example.com',
-                rss_item_count=25,
-                locale='zh',
+                rss=None,
             )
             mock_streamer.assert_called_once_with(
                 'cli.html',
