@@ -3,11 +3,12 @@ import os
 import time
 import traceback
 from contextlib import nullcontext
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 
 from .. import util
 from .._polyfill import mimetypes, zipfile
 from ..util import Info
+from .book import _id_now
 from .host import Host
 
 
@@ -87,11 +88,14 @@ class Exporter():
         index = meta.get('index', '')
 
         # generate a unique timestamp as prefix
-        ts = datetime.now(timezone.utc)
-        ets = util.datetime_to_id(ts)
+        ets = _id_now()
         while ets in self.used_ts:
-            ts += timedelta(milliseconds=1)
-            ets = util.datetime_to_id(ts)
+            try:
+                dt += timedelta(milliseconds=1)  # noqa: F821
+            except UnboundLocalError:
+                dt = util.id_to_datetime(ets)
+                dt += timedelta(milliseconds=1)
+            ets = util.datetime_to_id(dt)
         self.used_ts.add(ets)
 
         # setup an export id (eid), which is unique and is same among all
