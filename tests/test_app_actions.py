@@ -5491,8 +5491,8 @@ class TestCache(TestActions):
                 'item[0]': ['_item1', '_item2'],
                 'item[1]': ['book1_item1', 'book1_item2'],
                 'item': ['item1', 'item2'],
-                'no_lock': 1,
-                'no_backup': 1,
+                'lock': '',
+                'backup': '',
                 'fulltext': 1,
                 'recreate': 1,
                 'static_site': 1,
@@ -5505,7 +5505,7 @@ class TestCache(TestActions):
                     '': ['_item1', '_item2', 'item1', 'item2'],
                     'book1': ['book1_item1', 'book1_item2', 'item1', 'item2'],
                 },
-                lock=False,
+                lock='',
                 backup=False,
                 fulltext=True,
                 recreate=True,
@@ -5529,8 +5529,8 @@ class TestCache(TestActions):
                 'item[0]': ['_item1', '_item2'],
                 'item[1]': ['book1_item1', 'book1_item2'],
                 'item': ['item1', 'item2'],
-                'no_lock': 1,
-                'no_backup': 1,
+                'lock': '',
+                'backup': '',
                 'fulltext': 1,
                 'recreate': 1,
                 'static_site': 1,
@@ -5543,7 +5543,7 @@ class TestCache(TestActions):
                     '': ['_item1', '_item2', 'item1', 'item2'],
                     'book1': ['book1_item1', 'book1_item2', 'item1', 'item2'],
                 },
-                lock=False,
+                lock='',
                 backup=False,
                 fulltext=True,
                 recreate=True,
@@ -5566,8 +5566,8 @@ class TestCache(TestActions):
                 'item[0]': ['_item1', '_item2'],
                 'item[1]': ['book1_item1', 'book1_item2'],
                 'item': ['item1', 'item2'],
-                'no_lock': 1,
-                'no_backup': 1,
+                'lock': '',
+                'backup': '',
                 'fulltext': 1,
                 'recreate': 1,
                 'static_site': 1,
@@ -5580,7 +5580,7 @@ class TestCache(TestActions):
                     '': ['_item1', '_item2', 'item1', 'item2'],
                     'book1': ['book1_item1', 'book1_item2', 'item1', 'item2'],
                 },
-                lock=False,
+                lock='',
                 backup=False,
                 fulltext=True,
                 recreate=True,
@@ -5608,8 +5608,8 @@ class TestCache(TestActions):
                 'item[0]': ['_item1', '_item2'],
                 'item[1]': ['book1_item1', 'book1_item2'],
                 'item': ['item1', 'item2'],
-                'no_lock': 1,
-                'no_backup': 1,
+                'lock': '',
+                'backup': '',
             })
 
             mock_abort.assert_called_once_with(500, 'An unexpected error happened.')
@@ -5631,8 +5631,8 @@ class TestCheck(TestActions):
             r = c.get('/', query_string={
                 'a': 'check', 'f': 'sse', 'token': token(c),
                 'book': ['', 'id1'],
-                'no_lock': 1,
-                'no_backup': 1,
+                'lock': '',
+                'backup': '',
                 'resolve_invalid_id': 1,
                 'resolve_missing_index': 1,
                 'resolve_missing_index_file': 1,
@@ -5649,7 +5649,7 @@ class TestCheck(TestActions):
             mock_func.assert_called_once_with(
                 (wsb_app.host.root, wsb_app.host.config),
                 book_ids=['', 'id1'],
-                lock=False,
+                lock='',
                 backup=False,
                 resolve_invalid_id=True,
                 resolve_missing_index=True,
@@ -5676,8 +5676,8 @@ class TestCheck(TestActions):
             r = c.post('/', data={
                 'a': 'check', 'f': 'json', 'token': token(c),
                 'book': ['', 'id1'],
-                'no_lock': 1,
-                'no_backup': 1,
+                'lock': '',
+                'backup': '',
                 'resolve_invalid_id': 1,
                 'resolve_missing_index': 1,
                 'resolve_missing_index_file': 1,
@@ -5694,7 +5694,7 @@ class TestCheck(TestActions):
             mock_func.assert_called_once_with(
                 (wsb_app.host.root, wsb_app.host.config),
                 book_ids=['', 'id1'],
-                lock=False,
+                lock='',
                 backup=False,
                 resolve_invalid_id=True,
                 resolve_missing_index=True,
@@ -5720,8 +5720,8 @@ class TestCheck(TestActions):
             r = c.post('/', data={
                 'a': 'check', 'token': token(c),
                 'book': ['', 'id1'],
-                'no_lock': 1,
-                'no_backup': 1,
+                'lock': '',
+                'backup': '',
                 'resolve_invalid_id': 1,
                 'resolve_missing_index': 1,
                 'resolve_missing_index_file': 1,
@@ -5738,7 +5738,7 @@ class TestCheck(TestActions):
             mock_func.assert_called_once_with(
                 (wsb_app.host.root, wsb_app.host.config),
                 book_ids=['', 'id1'],
-                lock=False,
+                lock='',
                 backup=False,
                 resolve_invalid_id=True,
                 resolve_missing_index=True,
@@ -5879,14 +5879,14 @@ no_tree = true
                 'a': 'query',
                 'f': 'json',
                 'q': json.dumps(query),
-                'no_lock': 1,
+                'lock': '',
             })
 
             mock_cls.assert_called_once_with(
                 (wsb_app.host.root, wsb_app.host.config),
                 [query],
                 None,
-                lock=False,
+                lock='',
             )
             self.assertEqual(r.status_code, 200)
             self.assertEqual(r.headers['Content-Type'], 'application/json')
@@ -5911,14 +5911,14 @@ no_tree = true
                 'f': 'json',
                 'q': json.dumps(query),
                 'details': 1,
-                'no_lock': 1,
+                'lock': '',
             })
 
             mock_cls.assert_called_once_with(
                 (wsb_app.host.root, wsb_app.host.config),
                 [query],
                 None,
-                lock=False,
+                lock='',
             )
             self.assertEqual(r.status_code, 200)
             self.assertEqual(r.headers['Content-Type'], 'application/json')
@@ -5953,14 +5953,14 @@ no_tree = true
                 'a': 'query',
                 'f': 'json',
                 'q': [json.dumps(query1), json.dumps(query2)],
-                'no_lock': 1,
+                'lock': '',
             })
 
             mock_cls.assert_called_once_with(
                 (wsb_app.host.root, wsb_app.host.config),
                 [query1, query2],
                 None,
-                lock=False,
+                lock='',
             )
             self.assertEqual(r.status_code, 200)
             self.assertEqual(r.headers['Content-Type'], 'application/json')
@@ -5983,7 +5983,7 @@ class TestSearch(TestActions):
             r = c.post('/', data={
                 'a': 'search', 'f': 'json',
                 'q': 'book: book:b1, book:b2 foo bar',
-                'no_lock': 1,
+                'lock': '',
                 'fulltext': 300,
                 'comment': 200,
                 'source': 100,
@@ -5992,7 +5992,7 @@ class TestSearch(TestActions):
             mock_func.assert_called_once_with(
                 (wsb_app.host.root, wsb_app.host.config),
                 query='book: book:b1, book:b2 foo bar',
-                lock=False,
+                lock='',
                 context={
                     'title': -1,
                     'file': -1,
